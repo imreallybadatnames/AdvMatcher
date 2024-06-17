@@ -1,6 +1,7 @@
-package me.tooshort.advmatcher.lib;
+package me.tooshort.advmatcher.lib.matchers;
 
 import com.mojang.serialization.MapCodec;
+import me.tooshort.advmatcher.lib.MatcherRegistries;
 import net.minecraft.nbt.NbtElement;
 import org.jetbrains.annotations.Nullable;
 

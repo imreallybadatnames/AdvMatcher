@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.JsonOps;
-import me.tooshort.advmatcher.lib.Matcher;
+import me.tooshort.advmatcher.lib.matchers.Matcher;
 import me.tooshort.advmatcher.lib.Matchers;
 import me.tooshort.advmatcher.lib.matchers.ByteValueMatcher;
 import me.tooshort.advmatcher.lib.matchers.DerefMatcher;
