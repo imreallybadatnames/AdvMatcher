@@ -33,7 +33,7 @@ public class AdvMatcher implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		Matchers.init();
+		Matchers.registerBuiltins();
 
 		// Temporary testing code, ephemeral even.
 		// TODO: move this into a separate test unit and create more test cases

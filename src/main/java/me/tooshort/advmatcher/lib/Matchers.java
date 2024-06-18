@@ -7,16 +7,11 @@ import net.minecraft.registry.Registry;
 
 // Initialization happens here.
 public class Matchers {
-    private static boolean initialized = false;
-
-    public static void init() {
-        if (initialized) return;
-        initialized = true;
+    static {
         Matcher.init();
-        registerAll();
     }
 
-    private static void registerAll() {
+    public static void registerBuiltins() {
         register("boolean", BoolMatcher.CODEC);
         register("byte_value", ByteValueMatcher.CODEC);
         register("multi", MultiMatcher.CODEC);
