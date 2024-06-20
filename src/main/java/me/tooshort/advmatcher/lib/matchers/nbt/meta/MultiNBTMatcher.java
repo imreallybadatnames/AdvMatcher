@@ -1,15 +1,18 @@
-package me.tooshort.advmatcher.lib.matchers;
+package me.tooshort.advmatcher.lib.matchers.nbt.meta;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import me.tooshort.advmatcher.lib.matchers.MatchContext;
+import me.tooshort.advmatcher.lib.matchers.nbt.NBTMatcher;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.StringIdentifiable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MultiMatcher extends Matcher {
+public class MultiNBTMatcher extends NBTMatcher {
     public enum Mode implements StringIdentifiable {
         OR("or"),
         AND("and");
@@ -29,24 +32,24 @@ public class MultiMatcher extends Matcher {
     }
 
     private final Mode mode;
-    private final List<Matcher> subMatchers;
+    private final List<NBTMatcher> subMatchers;
 
-    public static final MapCodec<MultiMatcher> CODEC = RecordCodecBuilder.mapCodec(
+    public static final MapCodec<MultiNBTMatcher> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     Mode.CODEC.fieldOf("mode").forGetter(m -> m.mode),
-                    Matcher.CODEC.codec().listOf(1, Integer.MAX_VALUE).fieldOf("matchers").forGetter(m -> m.subMatchers)
-            ).apply(instance, MultiMatcher::new)
+                    NBTMatcher.CODEC.codec().listOf(1, Integer.MAX_VALUE).fieldOf("matchers").forGetter(m -> m.subMatchers)
+            ).apply(instance, MultiNBTMatcher::new)
     );
 
-    public MapCodec<MultiMatcher> getCodec() {
+    public MapCodec<MultiNBTMatcher> getCodec() {
         return CODEC;
     }
 
-    public MultiMatcher(Mode mode, Matcher... subMatchers) {
+    public MultiNBTMatcher(Mode mode, NBTMatcher... subMatchers) {
         this(mode, Arrays.asList(subMatchers));
     }
 
-    public MultiMatcher(Mode mode, List<Matcher> subMatchers) {
+    public MultiNBTMatcher(Mode mode, List<NBTMatcher> subMatchers) {
         this.mode = mode;
         this.subMatchers = subMatchers;
     }
@@ -55,7 +58,7 @@ public class MultiMatcher extends Matcher {
         return mode;
     }
 
-    public List<Matcher> matchers() {
+    public List<NBTMatcher> matchers() {
         return subMatchers;
     }
 
@@ -72,14 +75,14 @@ public class MultiMatcher extends Matcher {
 
     @Override
     public String toString() {
-        return String.format("MultiMatcher[mode=%s, matchers=%s]", mode, matchersAsString());
+        return String.format("MultiNBTMatcher[mode=%s, matchers=%s]", mode, matchersAsString());
     }
 
     @Override
-    public boolean matches(NbtElement element) {
+    public boolean matches(NbtElement element, @NotNull MatchContext ctx) {
             return switch (mode) {
-                case OR: for (var matcher : subMatchers) if (matcher.matches(element)) yield true; yield false;
-                case AND: for (var matcher : subMatchers) if (!matcher.matches(element)) yield false; yield true;
+                case OR: for (var matcher : subMatchers) if (matcher.matches(element, ctx)) yield true; yield false;
+                case AND: for (var matcher : subMatchers) if (!matcher.matches(element, ctx)) yield false; yield true;
             };
     }
 }

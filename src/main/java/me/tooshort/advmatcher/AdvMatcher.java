@@ -5,12 +5,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.JsonOps;
-import me.tooshort.advmatcher.lib.matchers.Matcher;
+import me.tooshort.advmatcher.lib.matchers.MatchContext;
+import me.tooshort.advmatcher.lib.matchers.nbt.NBTMatcher;
 import me.tooshort.advmatcher.lib.Matchers;
-import me.tooshort.advmatcher.lib.matchers.ByteValueMatcher;
-import me.tooshort.advmatcher.lib.matchers.DerefMatcher;
-import me.tooshort.advmatcher.lib.matchers.IsPresentMatcher;
-import me.tooshort.advmatcher.lib.matchers.MultiMatcher;
+import me.tooshort.advmatcher.lib.matchers.nbt.value.ByteValueMatcher;
+import me.tooshort.advmatcher.lib.matchers.nbt.meta.DerefMatcher;
+import me.tooshort.advmatcher.lib.matchers.nbt.meta.IsPresentMatcher;
+import me.tooshort.advmatcher.lib.matchers.nbt.meta.MultiNBTMatcher;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.command.argument.NbtPathArgumentType;
@@ -39,7 +40,7 @@ public class AdvMatcher implements ModInitializer {
 		// TODO: move this into a separate test unit and create more test cases
         try {
 			LOGGER.info("AdvMatcher test");
-			MultiMatcher testMatcher = new MultiMatcher(MultiMatcher.Mode.AND,
+			MultiNBTMatcher testMatcher = new MultiNBTMatcher(MultiNBTMatcher.Mode.AND,
                     new DerefMatcher(NbtPathArgumentType.NbtPath.parse("one.two.three"), new ByteValueMatcher((byte) 1)),
 					new DerefMatcher(NbtPathArgumentType.NbtPath.parse("four.five.six"), new ByteValueMatcher((byte) 0)),
 					new DerefMatcher(NbtPathArgumentType.NbtPath.parse("Inventory[{Slot:0b}]"), new IsPresentMatcher())
@@ -48,7 +49,7 @@ public class AdvMatcher implements ModInitializer {
 			LOGGER.info("Matcher: {}", testMatcher);
 
 			// JSON serialization test
-			JsonElement testJson = Matcher.CODEC.codec().encodeStart(JsonOps.INSTANCE, testMatcher).getOrThrow();
+			JsonElement testJson = NBTMatcher.CODEC.codec().encodeStart(JsonOps.INSTANCE, testMatcher).getOrThrow();
 
 			StringWriter stringWriter = new StringWriter();
 			JsonWriter jsonWriter = GSON.newJsonWriter(stringWriter);
@@ -57,7 +58,7 @@ public class AdvMatcher implements ModInitializer {
 			LOGGER.info("JSON: \n{}", stringWriter);
 
 			// JSON deserialization test
-			Matcher recreatedMatcher = Matcher.CODEC.codec().parse(JsonOps.INSTANCE, testJson).getOrThrow();
+			NBTMatcher recreatedMatcher = NBTMatcher.CODEC.codec().parse(JsonOps.INSTANCE, testJson).getOrThrow();
 			LOGGER.info("Recreated matcher: {}", recreatedMatcher);
 
 			// Match test
@@ -78,8 +79,10 @@ public class AdvMatcher implements ModInitializer {
 			matchAgainst.put("Inventory", fakeInv);
 			LOGGER.info("Match NBT: {}", matchAgainst);
 
-			LOGGER.info("Original matcher result: {}", testMatcher.matches(matchAgainst));
-			LOGGER.info("Recreated matcher result: {}", recreatedMatcher.matches(matchAgainst));
+			var ctx = MatchContext.of(null);
+
+			LOGGER.info("Original matcher result: {}", testMatcher.matches(matchAgainst, ctx));
+			LOGGER.info("Recreated matcher result: {}", recreatedMatcher.matches(matchAgainst, ctx));
 
         } catch (Exception e) {
             throw new RuntimeException(e);

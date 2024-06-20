@@ -1,13 +1,16 @@
-package me.tooshort.advmatcher.lib.matchers;
+package me.tooshort.advmatcher.lib.matchers.nbt.keyed;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import me.tooshort.advmatcher.lib.matchers.MatchContext;
+import me.tooshort.advmatcher.lib.matchers.nbt.NBTMatcher;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BoolMatcher extends Matcher {
+public class BoolMatcher extends NBTMatcher {
     private final String key;
     private final Boolean value;
 
@@ -29,12 +32,12 @@ public class BoolMatcher extends Matcher {
     );
 
     @Override
-    public MapCodec<? extends Matcher> getCodec() {
+    public MapCodec<? extends NBTMatcher> getCodec() {
         return CODEC;
     }
 
     @Override
-    public boolean matches(@Nullable NbtElement element) {
+    public boolean matches(@Nullable NbtElement element, @NotNull MatchContext ctx) {
         if (!(element instanceof NbtCompound compound)) return false;
         return compound.getBoolean(key) == value;
     }
