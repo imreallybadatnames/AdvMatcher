@@ -1,22 +1,14 @@
 package me.tooshort.advmatcher.lib.matchers;
 
 import com.mojang.serialization.MapCodec;
-import me.tooshort.advmatcher.lib.MatcherRegistries;
-import net.minecraft.nbt.NbtElement;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+public abstract class Matcher<T> {
+    public abstract MapCodec<? extends Matcher<T>> getCodec();
 
-public abstract class Matcher {
-    public static final MapCodec<Matcher> CODEC = MatcherRegistries.MATCHERS.getCodec().dispatchMap(Matcher::getCodec, Function.identity());
-
-    // dummy method to initialize CODEC before matchers use it
-    // probably won't do anything else for the near future
-    public static void init() {}
-
-    public abstract MapCodec<? extends Matcher> getCodec();
-
-    // Element may be nullable (especially if not working on root element)
-    // Must return false on error.
-    public abstract boolean matches(@Nullable final NbtElement element);
+    // Object may be nullable. Original object must not be mutated by matchers.
+    // Errors are interpreted as mismatches.
+    // Note that specific errors (such as those indicating potentially malformed matchers) may be log-worthy.
+    public abstract boolean matches(@Nullable final T object, @NotNull MatchContext ctx);
 }
